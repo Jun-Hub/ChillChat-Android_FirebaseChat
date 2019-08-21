@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "126850855124",
+    "firebase_url": "https://chilling-chat.firebaseio.com",
+    "project_id": "chilling-chat",
+    "storage_bucket": "chilling-chat.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:126850855124:android:3ea4e474ec019b11",
+        "android_client_info": {
+          "package_name": "io.chillingchat.android"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "126850855124-99kfgokgbmgghqhbf4g442eqk3dp4ub8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "io.chillingchat.android",
+            "certificate_hash": "0bfb4afde038f4fd58047123d35ad416367a66c2"
+          }
+        },
+        {
+          "client_id": "126850855124-uqe3ui0537jjoinqdutpgpbq8dgspm7t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAvLHLzcVLKMCeDiMPyEu_He41FPHuR_zE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "126850855124-uqe3ui0537jjoinqdutpgpbq8dgspm7t.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

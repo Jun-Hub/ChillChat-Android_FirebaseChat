@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">ChillChat</string>
+    <string name="title_match">Match</string>
+    <string name="title_chat">Chatting</string>
+    <string name="title_set">Setting</string>
+
+    <string name="missing_content">error</string>
+
+    <string name="Seen">Seen</string>
+    <string name="Delivered">Delivered</string>
+
+    <string name="admob_app_id">ca-app-pub-6263138384822549~5566878684</string>
+    <string name="banner_ad_unit_id">ca-app-pub-6263138384822549/4955083717</string>
+    <string name="banner_ad_unit_id_for_test">ca-app-pub-3940256099942544/6300978111</string>
+</resources>
