@@ -230,7 +230,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
                     return IMG_TYPE_LEFT;
                 }
             }
-        } else {    //메시지의 time이 null이라면 = notice 메세지임
+        } else {    //메시지의 time이 null이라면 = notice 메세지
             return MSG_TYPE_NOTICE;
         }
 
