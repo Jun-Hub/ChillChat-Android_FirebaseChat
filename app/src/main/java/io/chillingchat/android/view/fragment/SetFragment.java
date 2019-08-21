@@ -143,7 +143,7 @@ public class SetFragment extends Fragment implements SetMVP.View {
     }
 
     private void initAd(View v) {
-        MobileAds.initialize(getActivity(), "ca-app-pub-6263138384822549~5566878684");
+        MobileAds.initialize(getActivity(), Integer.toString(R.string.admob_app_id));
 
         AdView mAdView = v.findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().build();
