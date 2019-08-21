@@ -268,7 +268,7 @@ public class MatchModel implements MatchMVP.Model {
                     Log.e("MatchModel", "onChildChanged:" + dataSnapshot.getKey());
 
                     // A comment has changed, use the key to determine if we are displaying this
-                    // comment and if so displayed the changed comment.
+                    // comment and if so displayed the changed comment
                     final User user = dataSnapshot.getValue(User.class);
 
                     if (user != null && user.getUid().equals(firebaseUser.getUid()) && user.getMatchedWho() != null) {   //내가 누구와 매칭됬다면
