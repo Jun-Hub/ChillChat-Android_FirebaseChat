@@ -55,6 +55,6 @@ public interface SetMVP {
 
         void sendInquiry(String inquiry);
 
-        void sendError(String error);
+        void reportError(String error);
     }
 }

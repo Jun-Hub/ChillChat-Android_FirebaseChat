@@ -18,7 +18,7 @@ public interface MatchMVP {
 
         void hideProgressCircle();
 
-        void goAuthActivity();
+        void goAuthActivity(boolean isSanctioned);
     }
 
     interface Presenter {
@@ -46,7 +46,7 @@ public interface MatchMVP {
 
         void randomMatchBtnEnable();
 
-        void logout();
+        void logout(boolean isSanctioned);
 
         void showSnackBar(String msg);
     }

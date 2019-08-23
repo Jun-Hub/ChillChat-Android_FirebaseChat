@@ -58,7 +58,7 @@ public class SetPresenter implements SetMVP.Presenter {
 
     @Override
     public void sendError(String error) {
-        setModel.sendError(error);
+        setModel.reportError(error);
     }
 
 

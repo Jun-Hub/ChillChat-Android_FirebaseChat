@@ -407,45 +407,49 @@ public class ChatModel implements ChatMVP.Model {
     public void deleteChatRoom(final boolean myself) {
         if(chatRoomUid == null) {
             Log.e(TAG, "chatRoomUid is null");
-        }
-        if(myself && friendUid != null) {    //내가 채팅방을 지운거니 상대 Users 디비에 지운 상태 업뎃
-            DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users").child(friendUid);
-            HashMap<String, Object> hashMap = new HashMap<>();
-            hashMap.put("getKicked", true);
+            chatPresenter.showSnackBar("네트워크 연결 상태가 좋지 않습니다. 해당 현상이 계속될 경우 재접속 해주시기 바랍니다.", 3500, true);
+            checkChatRoom();
+        } else {
+            if (myself && friendUid != null) {    //내가 채팅방을 지운거니 상대 Users 디비에 지운 상태 업뎃
+                DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users").child(friendUid);
+                HashMap<String, Object> hashMap = new HashMap<>();
+                hashMap.put("getKicked", true);
 
-            reference.updateChildren(hashMap);
-        }
-
-        reference = FirebaseDatabase.getInstance().getReference("ChatRooms").child(chatRoomUid).child("info");
-        reference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                dataSnapshot.getRef().removeValue();
+                reference.updateChildren(hashMap);
             }
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
 
-            }
-        });
-
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("ChatRooms").child(chatRoomUid).child("chats");
-        reference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    ChatRoom.Chat chat = snapshot.getValue(ChatRoom.Chat.class);
-                    if(chat != null && chat.getImageURL() != null) {
-                        deleteImage(chat.getImageURL());
-                    }
+            reference = FirebaseDatabase.getInstance().getReference("ChatRooms").child(chatRoomUid).child("info");
+            reference.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    dataSnapshot.getRef().removeValue();
                 }
-                dataSnapshot.getRef().removeValue();
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
 
-            }
-        });
+                }
+            });
+
+            DatabaseReference reference = FirebaseDatabase.getInstance().getReference("ChatRooms").child(chatRoomUid).child("chats");
+            reference.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        ChatRoom.Chat chat = snapshot.getValue(ChatRoom.Chat.class);
+                        if (chat != null && chat.getImageURL() != null) {
+                            deleteImage(chat.getImageURL());
+                        }
+                    }
+                    dataSnapshot.getRef().removeValue();
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+        }
     }
 
     private void deleteImage(String imageURL) {

@@ -53,8 +53,10 @@ public class MatchPresenter implements MatchMVP.Presenter {
     @Override
     public void searchRandomUser() {
         // Bind to LocalService
-        Intent intent = new Intent(context, MatchService.class);
-        context.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+        if(!isBound) {
+            Intent intent = new Intent(context, MatchService.class);
+            context.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+        }
 
         if(!isThreadRunning) {
             runTimeCheck();
@@ -97,12 +99,10 @@ public class MatchPresenter implements MatchMVP.Presenter {
                     try {
                         Thread.sleep(1000);
                         sec ++;
-                        Log.e(TAG, "timeCheckThread running :" + sec);
                         if(sec%TIMEOUT_SEC==0) {    //매 TIMEOUT_SEC 마다
                             matchView.showSnackBar("네트워크 연결 상태가 좋지 않습니다. 확인 바랍니다.");
                         }
                     } catch (InterruptedException e) {
-                        Log.e(TAG, "runTimeCheck InterruptedException" + e.getMessage());
                         isThreadRunning = false;
                         break;
                     }
@@ -162,10 +162,10 @@ public class MatchPresenter implements MatchMVP.Presenter {
     }
 
     @Override
-    public void logout() {
+    public void logout(boolean isSanctioned) {
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         firebaseAuth.signOut();
-        matchView.goAuthActivity();
+        matchView.goAuthActivity(isSanctioned);
     }
 
 

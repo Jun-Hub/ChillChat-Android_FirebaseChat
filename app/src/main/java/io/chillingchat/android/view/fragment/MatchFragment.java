@@ -48,7 +48,7 @@ public class MatchFragment extends Fragment implements MatchMVP.View {
 
         setupMVP();
 
-        if(matchPresenter.checkOnlineStatus(getContext())) {
+        if(getContext() != null && matchPresenter.checkOnlineStatus(getContext())) {
             v = inflater.inflate(R.layout.fragment_match, container, false);
             setupView(v);
             matchPresenter.isSearching();
@@ -80,7 +80,7 @@ public class MatchFragment extends Fragment implements MatchMVP.View {
         randomMatchBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(matchPresenter.checkOnlineStatus(getContext())) {
+                if(getContext() != null && matchPresenter.checkOnlineStatus(getContext())) {
                     if(randomMatchBtn.isChecked()) {
                         matchPresenter.searchRandomUser();
                         progressBar.setVisibility(View.VISIBLE);
@@ -151,11 +151,11 @@ public class MatchFragment extends Fragment implements MatchMVP.View {
     }
 
     @Override
-    public void goAuthActivity() {
+    public void goAuthActivity(boolean isSanctioned) {
         Intent intent = new Intent(getContext(), AuthActivity.class);
-        intent.putExtra("isSanctioned", true);
+        intent.putExtra("isSanctioned", isSanctioned);
         startActivity(intent);
-        assert getActivity() != null;
+        if(getActivity() != null)
         getActivity().finish();
     }
 

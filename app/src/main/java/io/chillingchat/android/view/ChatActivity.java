@@ -210,7 +210,6 @@ public class ChatActivity extends AppCompatActivity implements ChatMVP.View {
         if(isThreadActive) {
             timeCheckThread.interrupt();
         }
-        Log.e(TAG, "on Pause");
     }
 
     private void openMenuDialog() {

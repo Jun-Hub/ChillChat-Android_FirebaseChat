@@ -24,7 +24,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 import java.util.TimeZone;
 
 import io.chillingchat.android.model.dto.ChatRoom;
@@ -48,6 +47,8 @@ public class MatchModel implements MatchMVP.Model {
     private DatabaseReference matchWhoRef;
     private static ChildEventListener searchListener;
 
+    public static boolean requestMatch;
+    private boolean amIMatched;
     private String myName;
 
     public MatchModel(MatchMVP.Presenter presenter) {
@@ -57,99 +58,73 @@ public class MatchModel implements MatchMVP.Model {
     @Override
     public void deleteOldChatRoom() {
 
-        //중복입력 오류방지 위해 버튼 막기
-        matchPresenter.randomMatchBtnDisable();
-        //deleteMatchOrder();
+        if(myName == null) {
+            matchPresenter.showSnackBar("네트워크 연결 상태가 좋지 않습니다. 확인 바랍니다.");
+            isSearching();
+        } else {
+            //중복입력 오류방지 위해 버튼 막기
+            matchPresenter.randomMatchBtnDisable();
 
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("ChatRooms");
-        reference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (!dataSnapshot.exists()) {    //ChatRooms가 존재하지않는다면(지금 바로 매칭시작)
-                    Log.e(TAG, "howManyChat0");
-                    requestMatch();
-                } else {
-                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                        ChatRoom chatRoom = snapshot.getValue(ChatRoom.class);
+            searchRandomUser(myName); //이 부분이 아래 requestMatch와 같이 호출되면, 상대가 나를 get해도
+                                    // 아직 addChildEventListener가 발동하지 않아서, 나만 채팅 시작이 안됌.
 
-                        if (chatRoom != null) {
-                            ChatRoom.Info info = chatRoom.getInfo();
+            DatabaseReference reference = FirebaseDatabase.getInstance().getReference("ChatRooms");
+            reference.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (!dataSnapshot.exists()) {    //ChatRooms가 존재하지않는다면(지금 바로 매칭시작)
+                        Log.e(TAG, "howManyChat0");
+                        requestMatch();
+                    } else {
+                        int chatRoomEA = 0;
+                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                            ChatRoom chatRoom = snapshot.getValue(ChatRoom.class);
 
-                            if (info != null && info.getUser1Uid().equals(firebaseUser.getUid())
-                                    || info != null && info.getUser2Uid().equals(firebaseUser.getUid())) {    //내가 속한 채팅방 찾기
+                            if (chatRoom != null) {
+                                ChatRoom.Info info = chatRoom.getInfo();
 
-                                final String chatRoomUid = snapshot.getKey();
+                                if (info != null && info.getUser1Uid().equals(firebaseUser.getUid())
+                                        || info != null && info.getUser2Uid().equals(firebaseUser.getUid())) {    //내가 속한 채팅방 찾기
 
-                                if (chatRoomUid != null) {
-                                    DatabaseReference reference = FirebaseDatabase.getInstance().getReference("ChatRooms").child(chatRoomUid).child("info");
-                                    reference.addListenerForSingleValueEvent(new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                            ChatRoom.Info info = dataSnapshot.getValue(ChatRoom.Info.class);
-                                            if (info != null) {
-                                                long madeTime = Long.parseLong(String.valueOf(info.getMadeTime())); //Object를 long으로 파싱
+                                    chatRoomEA ++;
+                                    final String chatRoomUid = snapshot.getKey();
 
-                                                calculateLeftTime(madeTime, chatRoomUid);
+                                    if (chatRoomUid != null) {
+                                        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("ChatRooms").child(chatRoomUid).child("info");
+                                        reference.addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                                ChatRoom.Info info = dataSnapshot.getValue(ChatRoom.Info.class);
+                                                if (info != null) {
+                                                    long madeTime = Long.parseLong(String.valueOf(info.getMadeTime())); //Object를 long으로 파싱
+
+                                                    calculateLeftTime(madeTime, chatRoomUid);
+                                                }
                                             }
-                                        }
-                                        @Override
-                                        public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                                        }
-                                    });
+                                            @Override
+                                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                            }
+                                        });
+                                    }
                                 }
-                            } else {    //내가 속한 채팅방이 없거나 info가 null일 때 (info만 삭제되고 chats은 남아있는 에러인경우)
-                                Log.e(TAG, "No ChatRoom I'm in. or Error : Not info. Only Chats exist");
-                                requestMatch();
                             }
                         }
-                    }
-                }
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-    }
-
-    /*@Override
-    public void amIChatting() {
-
-        reference = FirebaseDatabase.getInstance().getReference("ChatRooms");
-        reference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                int chatRoomEA = 0;
-
-                for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    ChatRoom chatRoom = snapshot.getValue(ChatRoom.class);
-                    if(chatRoom != null) {
-                        ChatRoom.Info info = chatRoom.getInfo();
-
-                        if (info.getUser1Uid().equals(firebaseUser.getUid()) || info.getUser2Uid().equals(firebaseUser.getUid())) {
-                            chatRoomEA++;   //내가 속한 채팅방 갯수++
+                        if(chatRoomEA==0) {
+                            Log.e(TAG, "No ChatRoom at me. or Error : Not info. Only Chats exist");
+                            requestMatch();
                         }
                     }
                 }
 
-                if(chatRoomEA > MAX_CHAT_ROOM) {
-                    matchPresenter.showSnackBar("이미 대화중인 상대가 있습니다.\n채팅방을 나가면 새로운 매칭을 할 수 있습니다.");
-                    matchPresenter.randomMatchBtnOff(); //매치 검색버튼 검색해제 상태로 만들기
-                    matchPresenter.randomMatchBtnEnable();
-                    if(isThreadRunning)
-                        timeCheckThread.interrupt();
-                } else {
-                    requestMatch();
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
                 }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-    }*/
+            });
+        }
+    }
 
     private void requestMatch() {
 
@@ -157,30 +132,29 @@ public class MatchModel implements MatchMVP.Model {
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("MatchOrder");
         ref.push().setValue(firebaseUser.getUid());*/
 
-        reference = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
-        HashMap<String, Object> hashMap = new HashMap<>();
-        hashMap.put("matchedWho", null);
-        hashMap.put("requestMatch", true);
-        hashMap.put("getKicked", false);
+            reference = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
+            HashMap<String, Object> hashMap = new HashMap<>();
+            hashMap.put("matchedWho", null);
+            hashMap.put("requestMatch", true);
+            hashMap.put("getKicked", false);
 
-        reference.updateChildren(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if(task.isSuccessful() && myName != null) {
-
-                    searchRandomUser(myName);
-                    matchPresenter.randomMatchBtnEnable();
-                    matchPresenter.showProgressCircle();
-                } else {
-                    Log.e("MatchModel", "requestMatch().addOnFailureListener" );
-                    isSearching();
-                    matchPresenter.randomMatchBtnOff(); //매치 검색버튼 검색해제 상태로 만들기
-                    matchPresenter.randomMatchBtnEnable();
+            reference.updateChildren(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()) {
+                        requestMatch = true;
+                        matchPresenter.randomMatchBtnEnable();
+                        matchPresenter.showProgressCircle();
+                    } else {
+                        Log.e("MatchModel", "requestMatch().addOnFailureListener");
+                        isSearching();
+                        matchPresenter.randomMatchBtnOff(); //매치 검색버튼 검색해제 상태로 만들기
+                        matchPresenter.randomMatchBtnEnable();
+                    }
+                    if (isThreadRunning)
+                        timeCheckThread.interrupt();
                 }
-                if(isThreadRunning)
-                timeCheckThread.interrupt();
-            }
-        });
+            });
     }
 
     @Override
@@ -191,41 +165,30 @@ public class MatchModel implements MatchMVP.Model {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
 
-                if(user != null && user.isRequestMatch()) {
-                    matchPresenter.showProgressCircle();
-                } else  {
-                    if(searchListener != null) {
-                        searchReference.removeEventListener(searchListener);
-                        searchListener = null;
-                    }
-                    /*Log.e(TAG, "randomMatchBtnOff");
-                    matchPresenter.randomMatchBtnOff();*/
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-
-        reference = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
-        reference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                User user = dataSnapshot.getValue(User.class);
-                if(user != null) {
+                if (user != null) {
                     myName = user.getUserName();
                     Log.e(TAG, "myName :" + myName);
+
+                    if(myName == null) {
+                        matchPresenter.logout(false);
+                    } else if (user.isRequestMatch()) {
+                        requestMatch = true;
+                        matchPresenter.showProgressCircle();
+                    } else if (!user.isRequestMatch()) {
+                        requestMatch = false;
+                        matchPresenter.randomMatchBtnOff();
+                        if(searchListener != null) {
+                            searchReference.removeEventListener(searchListener);
+                            searchListener = null;
+                        }
+                    }
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-
             }
         });
-
     }
 
     @Override
@@ -242,12 +205,13 @@ public class MatchModel implements MatchMVP.Model {
         reference = FirebaseDatabase.getInstance().getReference("Users").child(uid);
 
         HashMap<String, Object> hashMap = new HashMap<>();
-        hashMap.put("matchedWho", null);
+        //hashMap.put("matchedWho", null);
         hashMap.put("requestMatch", false);
         //DB의 매치요청상태를 false로 바꿔줌
         reference.updateChildren(hashMap).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
+                requestMatch = false;
                 matchPresenter.randomMatchBtnOff();
                 matchPresenter.randomMatchBtnEnable();
                 matchPresenter.hideProgressCircle();
@@ -256,7 +220,9 @@ public class MatchModel implements MatchMVP.Model {
     }
 
     private void searchRandomUser(final String myName) {
+        amIMatched = false;
         if(searchListener == null) {
+
             searchReference = FirebaseDatabase.getInstance().getReference("Users");
             searchListener = searchReference.addChildEventListener(new ChildEventListener() {
                 @Override
@@ -265,49 +231,29 @@ public class MatchModel implements MatchMVP.Model {
 
                 @Override
                 public void onChildChanged(@NonNull DataSnapshot dataSnapshot, String s) {
-                    Log.e("MatchModel", "onChildChanged:" + dataSnapshot.getKey());
+                    Log.e("MatchModel", "onChildChanged:" + dataSnapshot.getKey() + " amIMatched :" + amIMatched);
 
                     // A comment has changed, use the key to determine if we are displaying this
                     // comment and if so displayed the changed comment
-                    final User user = dataSnapshot.getValue(User.class);
+                    User user = dataSnapshot.getValue(User.class);
 
-                    if (user != null && user.getUid().equals(firebaseUser.getUid()) && user.getMatchedWho() != null) {   //내가 누구와 매칭됬다면
+                    if (user != null && user.getUid().equals(firebaseUser.getUid()) && user.getMatchedWho() != null && !amIMatched) {   //내가 누구와 매칭됬다면
+
                         Log.e("MatchModel", "matched by others");
+                        amIMatched = true;
                         stopMatch(firebaseUser.getUid());   //내 자신의 매칭요청 일단 중지시킴
                         createChatRoom(user.getMatchedWho());
                         Log.e("MatchModel", "createChatRoom by others :" + user.getMatchedWho());
-                    } else if (user != null && !user.getUid().equals(firebaseUser.getUid()) && user.isRequestMatch()) { //내가 아닌 유저가 랜덤챗 매치요청 상태라면
+                    } else if (!amIMatched && requestMatch && user != null && !user.getUid().equals(firebaseUser.getUid())//!amIMatched >> 내가 아직 매치가 안됬어야
+                            && user.isRequestMatch() && user.getMatchedWho() == null) { //내가 아닌 유저가 랜덤챗 매치요청 상태라면
 
-                            /*DatabaseReference ref = FirebaseDatabase.getInstance().getReference("MatchOrder");
-                            ref.addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                    List<String> list = new ArrayList<>();
-                                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                                        String waitingUid = snapshot.getValue(String.class);
-                                        list.add(waitingUid);
-                                    }
+                        amIMatched = true;
 
-                                    String firstWaiting = list.get(0);
-                                    if (firstWaiting.equals(firebaseUser.getUid()) && user.getMatchedWho() == null) { //내가 매치 대기순번 1순위고 상대가 매치상대가 없다면*/
-                        Log.e(TAG, "I got him! Let's go to the ChatRoom");
-
-                        stopMatch(firebaseUser.getUid());   //내 자신의 매칭요청 중지시킴(stopMatch를 matchedWith보다 먼저 발동시켜야 상대방의 onChildAdded에서 나의 매치요청 true가 안잡힘)
                         matchedWith(user.getUid(), firebaseUser.getUid());//매칭된 나의 Uid를 상대 DB에 업뎃
+                        stopMatch(firebaseUser.getUid());
 
                         //첫메세지를 매칭 알림 메세지를 보냄으로써, 채팅방 목록 DB에 추가됨
                         sendNoticeMsg(firebaseUser.getUid(), user.getUid(), myName, user.getUserName());
-
-                        //amIChattingHim(user.getUid(), user.getUserName(), myName);
-                                    /*}
-                                }
-
-                                @Override
-                                public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                                }
-                            });*/
-
                     }
                 }
 
@@ -330,73 +276,13 @@ public class MatchModel implements MatchMVP.Model {
         }
     }
 
-    /*private void amIChattingHim(final String friendUid, final String friendName, final String myName) {
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("ChatRooms");
-        reference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
-                if (!dataSnapshot.exists()) {    //ChatRooms가 존재하지않는다면(지금 바로 만들기)
-                    Log.e(TAG, "Any ChatRoom dataSnapshot not exists()");
-
-                    stopMatch(firebaseUser.getUid());   //내 자신의 매칭요청 중지시킴(stopMatch를 matchedWith보다 먼저 발동시켜야 상대방의 onChildAdded에서 나의 매치요청 true가 안잡힘)
-
-                    matchedWith(friendUid, firebaseUser.getUid());//매칭된 나의 Uid를 상대 DB에 업뎃
-                    matchedWith(firebaseUser.getUid(), friendUid); //매칭된 상대 Uid를 내 DB에 업뎃
-
-                    //첫메세지를 매칭 알림 메세지를 보냄으로써, 채팅방 목록 DB에 추가됨
-                    sendNoticeMsg(firebaseUser.getUid(), friendUid, myName, friendName);
-
-                } else {
-                    boolean amIChattingHim = false;
-                    for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                        ChatRoom chatRoom = snapshot.getValue(ChatRoom.class);
-
-                        if(chatRoom != null) {
-                            ChatRoom.Info info = chatRoom.getInfo();
-
-                            Log.e(TAG, "friendUid :" + friendUid);
-                            Log.e(TAG, "user1 :" + info.getUser1Uid());
-                            Log.e(TAG, "user2 :" + info.getUser2Uid());
-
-                            if (info.getUser1Uid().equals(friendUid) && info.getUser2Uid().equals(firebaseUser.getUid())
-                                    || info.getUser2Uid().equals(friendUid) && info.getUser1Uid().equals(firebaseUser.getUid())) {    //현재 나와 채팅하고 있는 상대라면
-                                amIChattingHim = true;
-                            }
-                        }
-                    }
-
-                    if (!amIChattingHim) {  //상대가 현재 나와 채팅하고 있지 않다면
-
-                        stopMatch(firebaseUser.getUid());   //내 자신의 매칭요청 중지시킴(stopMatch를 matchedWith보다 먼저 발동시켜야 상대방의 onChildAdded에서 나의 매치요청 true가 안잡힘)
-
-                        matchedWith(firebaseUser.getUid(), friendUid); //매칭된 상대 Uid를 내 DB에 업뎃
-                        matchedWith(friendUid, firebaseUser.getUid());//매칭된 나의 Uid를 상대 DB에 업뎃
-
-                        //첫메세지를 매칭 알림 메세지를 보냄으로써, 채팅방 목록 DB에 추가됨
-                        sendNoticeMsg(firebaseUser.getUid(), friendUid, myName, friendName);
-                    }
-                }
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-
-        });
-    }*/
-
     private void matchedWith(String userUid, final String matchedUid) {
         matchWhoRef = FirebaseDatabase.getInstance().getReference("Users").child(userUid);
 
         HashMap<String, Object> hashMap = new HashMap<>();
         hashMap.put("matchedWho", matchedUid);
         //매칭된 상대 Uid를 업뎃해줌.
-        matchWhoRef.updateChildren(hashMap).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-            }
-        });
+        matchWhoRef.updateChildren(hashMap);
     }
 
     private void createChatRoom(String matchedUid) {
@@ -435,25 +321,6 @@ public class MatchModel implements MatchMVP.Model {
         });
     }
 
-    /*private void deleteMatchOrder() {
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("MatchOrder");
-        ref.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    if(snapshot.getValue(String.class).equals(firebaseUser.getUid())) {
-                        snapshot.getRef().removeValue();
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-    }*/
-
     @Override
     public void checkIsSan() {
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -463,10 +330,10 @@ public class MatchModel implements MatchMVP.Model {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
 
-                if( user != null) {
+                if(user != null) {
                     if (user.isSanctioned()) {
-                        deleteMyChatRoom();
-                        matchPresenter.logout();
+                        //deleteMyChatRoom();
+                        matchPresenter.logout(true);
                     }
                 }
             }
@@ -478,7 +345,7 @@ public class MatchModel implements MatchMVP.Model {
         });
     }
 
-    private void deleteMyChatRoom() {
+    /*private void deleteMyChatRoom() {
         reference = FirebaseDatabase.getInstance().getReference("ChatRooms");
         reference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -490,6 +357,8 @@ public class MatchModel implements MatchMVP.Model {
                         ChatRoom.Info info = chatRoom.getInfo();
                         Map<String, ChatRoom.Chat> chats = chatRoom.getChats();
 
+                        Log.e(TAG, "test test test tes111111111");
+
                         if (info.getUser1Uid().equals(firebaseUser.getUid()) || info.getUser2Uid().equals(firebaseUser.getUid())) {    //현재 나와 채팅하고 있는 채팅방이라면
 
                             for (String key : chats.keySet()) {    //"chats" DB 돌리기
@@ -499,6 +368,7 @@ public class MatchModel implements MatchMVP.Model {
                                     deleteImage(chat.getImageURL());
                                 }
                             }
+                            Log.e(TAG, "test test test tes22222222222");
                             snapshot.getRef().removeValue();
                         }
                     }
@@ -509,7 +379,7 @@ public class MatchModel implements MatchMVP.Model {
 
             }
         });
-    }
+    }*/
 
     private void deleteImage(String imageURL) {
         String fileName = imageURL.substring(imageURL.indexOf("F")+1, imageURL.indexOf("?"));

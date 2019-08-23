@@ -57,7 +57,7 @@ public class SetFragment extends Fragment implements SetMVP.View {
 
         setupMVP();
 
-        if(setPresenter.checkOnlineStatus(getContext())) {
+        if(getContext() != null && setPresenter.checkOnlineStatus(getContext())) {
             v = inflater.inflate(R.layout.fragment_set, container, false);
             setupView(v);
             setPresenter.getUserName();
@@ -158,29 +158,6 @@ public class SetFragment extends Fragment implements SetMVP.View {
             // EditText 삽입하기
             final EditText editText = new EditText(getContext());
             editText.setImeOptions(EditorInfo.IME_ACTION_DONE);
-        /*editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                switch (actionId) {
-                    case EditorInfo.IME_ACTION_DONE:
-                        String userName = editText.getText().toString();
-                        if(!Pattern.matches("^[0-9a-zA-Z가-힣]*$", userName)) {
-                            showSnackBar("숫자, 영문, 한글 이외의 문자(자음,모음 공백 포함)는 쓸 수 없습니다. ", 3000, true);
-                        } else if(userName.length() < 2 || userName.length() > 10) {
-                            showSnackBar("글자 수는 2~10자 이어야 합니다.", 3000, true);
-                        } else {
-                            setPresenter.editUserName(userName);
-                            progressBar.setVisibility(View.VISIBLE);
-                        }
-                        break;
-                    default:
-                        // 기본 엔터키 동작
-                        return false;
-                }
-                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-                return true;
-            }
-        });*/
             dialog.setView(editText);
             dialog.setPositiveButton("확인", new DialogInterface.OnClickListener() {
                 @Override
@@ -191,7 +168,7 @@ public class SetFragment extends Fragment implements SetMVP.View {
                     } else if (userName.length() < 2 || userName.length() > 12) {
                         showSnackBar("글자 수는 2~12자 이어야 합니다.", 3000, true);
                     } else {
-                        if (setPresenter.checkOnlineStatus(getContext())) {
+                        if (getContext() != null && setPresenter.checkOnlineStatus(getContext())) {
                             setPresenter.editUserName(userName);
                             progressBar.setVisibility(View.VISIBLE);
                             imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
@@ -227,7 +204,7 @@ public class SetFragment extends Fragment implements SetMVP.View {
             dialog.setPositiveButton("전송", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    if (setPresenter.checkOnlineStatus(getContext())) {
+                    if (getContext() != null && setPresenter.checkOnlineStatus(getContext())) {
                         setPresenter.sendInquiry(editText.getText().toString());
                         imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
                         progressBar.setVisibility(View.VISIBLE);
@@ -264,7 +241,7 @@ public class SetFragment extends Fragment implements SetMVP.View {
             dialog.setPositiveButton("전송", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    if (setPresenter.checkOnlineStatus(getContext())) {
+                    if (getContext() != null &&  setPresenter.checkOnlineStatus(getContext())) {
                         setPresenter.sendError(editText.getText().toString());
                         imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
                         progressBar.setVisibility(View.VISIBLE);
@@ -295,7 +272,7 @@ public class SetFragment extends Fragment implements SetMVP.View {
             dialog.setPositiveButton("확인", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    if (setPresenter.checkOnlineStatus(getContext())) {
+                    if (getContext() != null && setPresenter.checkOnlineStatus(getContext())) {
                         progressBar.setVisibility(View.VISIBLE);
                         setPresenter.outOfMembership();
                     } else {
@@ -321,7 +298,7 @@ public class SetFragment extends Fragment implements SetMVP.View {
             dialog.setPositiveButton("로그아웃", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    if (setPresenter.checkOnlineStatus(getContext())) {
+                    if (getContext() != null && setPresenter.checkOnlineStatus(getContext())) {
                         setPresenter.logout(false);
                     } else {
                         showSnackBar("네트워크 연결 상태가 좋지 않습니다. 확인 후 다시 시도해주세요.", 3000, true);

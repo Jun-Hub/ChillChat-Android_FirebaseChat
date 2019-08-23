@@ -40,7 +40,7 @@ public class ChatPresenter implements ChatMVP.Presenter {
     private ChatModel chatModel;
 
     private static final String TAG = "ChatPresenter";
-    private static final int FILE_SIZE_LIMIT = 13000000;
+    private static final int FILE_SIZE_LIMIT = 12000000;
 
     private String friendUid;
 
@@ -51,7 +51,7 @@ public class ChatPresenter implements ChatMVP.Presenter {
     private File toDeleteFile;
 
     public static Thread timeCheckThread;
-    public static final int TIME_LIMIT = 60; //제한시간 (초)
+    public static final int TIME_LIMIT = 900; //제한시간 (초)
     public static boolean isThreadActive;
     private static String leftTime;
 
@@ -146,7 +146,7 @@ public class ChatPresenter implements ChatMVP.Presenter {
                     chatModel.uploadImage(activity, imageUri, toDeleteFile);
                 }
             } else {    //15mb 이상이면
-                chatView.showSnackBar("13MB 이상의 고용량 이미지는 전송할 수 없습니다.", 3000, true);
+                chatView.showSnackBar("12MB 이상의 고용량 이미지는 전송할 수 없습니다.", 3000, true);
             }
         }
     }
@@ -293,7 +293,6 @@ public class ChatPresenter implements ChatMVP.Presenter {
 
         final Handler handler = new Handler();
 
-        Log.e(TAG, "isThreadActive :" + isThreadActive);
         if(!isThreadActive) {
             isThreadActive = true;
             timeCheckThread = new Thread(new Runnable() {
@@ -314,7 +313,6 @@ public class ChatPresenter implements ChatMVP.Presenter {
 
                             Thread.sleep(1000);
                         } catch (InterruptedException e) {
-                            Log.e(TAG, "InterruptedException :" + e.getMessage());
                             isThreadActive = false;
                             break;
                         }

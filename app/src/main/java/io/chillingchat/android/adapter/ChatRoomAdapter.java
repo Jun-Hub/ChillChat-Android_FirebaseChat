@@ -12,11 +12,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
@@ -195,7 +193,6 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ViewHo
     }
 
     private void checkRoomUid(final String friendUid, final TextView timeLimit, final TextView unreadMsgEA, final TextView lastMsg, final ImageButton closeBtn) {
-        Log.e(TAG, "checkRoomUid called");
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("ChatRooms");
         reference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -338,7 +335,6 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ViewHo
                 aIsThreadRunning = true;
                 while (aIsThreadRunning) {
                         final String aLeftTime = calculateLeftTime(madeTime, chatRoomUid);
-                        Log.e(TAG, "aLeftTime :" + aLeftTime);
 
                         handler.post(new Runnable() {
                             @Override

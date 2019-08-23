@@ -17,6 +17,7 @@ import java.util.HashMap;
 import io.chillingchat.android.mvp_interface.AuthMVP;
 
 import static android.content.Context.MODE_PRIVATE;
+import static io.chillingchat.android.model.MatchModel.requestMatch;
 
 public class AuthModel implements AuthMVP.Model {
 
@@ -68,6 +69,7 @@ public class AuthModel implements AuthMVP.Model {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()) {
+                    requestMatch = false;
                     authPresenter.startMainActivity();
                 } else {
                     authPresenter.showSnackbar("올바르지 않거나 만료된 회원가입 링크입니다.\n인증메일을 재전송해주십시오",3500, true, true);

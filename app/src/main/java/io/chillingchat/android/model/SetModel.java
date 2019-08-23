@@ -20,9 +20,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.HashMap;
-import java.util.Map;
 
-import io.chillingchat.android.model.dto.ChatRoom;
 import io.chillingchat.android.model.dto.User;
 import io.chillingchat.android.mvp_interface.SetMVP;
 
@@ -47,8 +45,11 @@ public class SetModel implements SetMVP.Model {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
-                if(user != null)
-                setPresenter.setUserName(user.getUserName());
+                if(user != null && user.getUserName() == null) {
+                    setPresenter.logout(false);
+                } else if(user != null) {
+                    setPresenter.setUserName(user.getUserName());
+                }
             }
 
             @Override
@@ -83,7 +84,9 @@ public class SetModel implements SetMVP.Model {
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
                                 //delete all user's DB before leave member
-                                deleteAllDB();
+                                //deleteAllDB();
+                                setPresenter.hideProgressBar();
+                                setPresenter.logout(true);
                             }
                         }
                     }).addOnFailureListener(new OnFailureListener() {
@@ -96,37 +99,24 @@ public class SetModel implements SetMVP.Model {
         }
     }
 
-    private void deleteAllDB() {
-        deleteChatRoom();
+    /*private void deleteAllDB() {
+        //deleteChatRoom();
         //last delete 'User' DB
         reference = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
         reference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Log.e(TAG, "dataSnapshot.getValue() :" + dataSnapshot.getValue());
-                dataSnapshot.getRef().removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        setPresenter.hideProgressBar();
-                        setPresenter.logout(true);
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.e(TAG, ""+e.getMessage());
-                        setPresenter.hideProgressBar();
-                        setPresenter.showSnackBar("에러로 회원탈퇴에 실패했습니다. 재시도 해주십시오. 계속 실패할 경우 개발자에게 문의해주세요", 3500, true);
-                    }
-                });
+                dataSnapshot.getRef().removeValue();
             }
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
         });
-    }
+    }*/
 
-    private void deleteChatRoom() {
+    /*private void deleteChatRoom() {
         reference = FirebaseDatabase.getInstance().getReference("ChatRooms");
         reference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -156,13 +146,13 @@ public class SetModel implements SetMVP.Model {
 
             }
         });
-    }
+    }*/
 
-    private void deleteImage(String imageURL) {
+    /*private void deleteImage(String imageURL) {
         String fileName = imageURL.substring(imageURL.indexOf("F")+1, imageURL.indexOf("?"));
         StorageReference storageReference = FirebaseStorage.getInstance().getReference("uploads").child(fileName);
         storageReference.delete();
-    }
+    }*/
 
     @Override
     public void sendInquiry(String inquiry) {
@@ -181,7 +171,7 @@ public class SetModel implements SetMVP.Model {
     }
 
     @Override
-    public void sendError(String error) {
+    public void reportError(String error) {
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         reference = FirebaseDatabase.getInstance().getReference("ErrorReports").child(firebaseUser.getUid());
         HashMap<String, Object> hashMap = new HashMap<>();
