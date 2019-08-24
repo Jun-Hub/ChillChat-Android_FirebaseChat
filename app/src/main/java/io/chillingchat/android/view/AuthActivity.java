@@ -184,6 +184,7 @@ public class AuthActivity extends AppCompatActivity implements AuthMVP.View {
             );
             // Layout must match parent layout type
             lp.setMargins(0, 300, 0, 0);
+            lp.height = 48;
             // Margins relative to the parent view.
             snackBarLayout.setLayoutParams(lp);
         }
