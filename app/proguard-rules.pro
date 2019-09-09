@@ -21,3 +21,24 @@
 #-renamesourcefileattribute SourceFile
 -keepattributes Signature
 -keepattributes *Annotation*
+-keepattributes EnclosingMethod
+
+#admob
+-keep public class com.google.android.gms.ads.**{
+    public *;
+}
+-keep public class com.google.ads.**{
+    public *;
+}
+-keep public class com.google.firebase.analytics.FirebaseAnalytics {
+    public *;
+}
+
+-keep public class com.google.android.gms.measurement.AppMeasurement {
+    public *;
+}
+-keep public class com.google.android.** {
+    public *;
+}
+
+-dontwarn com.google.android.gms.**

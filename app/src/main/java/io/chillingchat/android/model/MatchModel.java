@@ -58,10 +58,10 @@ public class MatchModel implements MatchMVP.Model {
     @Override
     public void deleteOldChatRoom() {
 
-        if(myName == null) {
+        /*if(myName == null) {
             matchPresenter.showSnackBar("네트워크 연결 상태가 좋지 않습니다. 확인 바랍니다.");
             isSearching();
-        } else {
+        } else {*/
             //중복입력 오류방지 위해 버튼 막기
             matchPresenter.randomMatchBtnDisable();
 
@@ -123,38 +123,34 @@ public class MatchModel implements MatchMVP.Model {
 
                 }
             });
-        }
+        //}
     }
 
     private void requestMatch() {
 
-        /*//중복 매치를 방지하기 위해 매치 순서 정하기
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("MatchOrder");
-        ref.push().setValue(firebaseUser.getUid());*/
+        reference = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
+        HashMap<String, Object> hashMap = new HashMap<>();
+        hashMap.put("matchedWho", null);
+        hashMap.put("requestMatch", true);
+        hashMap.put("getKicked", false);
 
-            reference = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
-            HashMap<String, Object> hashMap = new HashMap<>();
-            hashMap.put("matchedWho", null);
-            hashMap.put("requestMatch", true);
-            hashMap.put("getKicked", false);
-
-            reference.updateChildren(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                    if (task.isSuccessful()) {
-                        requestMatch = true;
-                        matchPresenter.randomMatchBtnEnable();
-                        matchPresenter.showProgressCircle();
-                    } else {
-                        Log.e("MatchModel", "requestMatch().addOnFailureListener");
-                        isSearching();
-                        matchPresenter.randomMatchBtnOff(); //매치 검색버튼 검색해제 상태로 만들기
-                        matchPresenter.randomMatchBtnEnable();
-                    }
-                    if (isThreadRunning)
-                        timeCheckThread.interrupt();
+        reference.updateChildren(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    requestMatch = true;
+                    matchPresenter.randomMatchBtnEnable();
+                    matchPresenter.showProgressCircle();
+                } else {
+                    Log.e("MatchModel", "requestMatch().addOnFailureListener");
+                    isSearching();
+                    matchPresenter.randomMatchBtnOff(); //매치 검색버튼 검색해제 상태로 만들기
+                    matchPresenter.randomMatchBtnEnable();
                 }
-            });
+                if (isThreadRunning)
+                    timeCheckThread.interrupt();
+            }
+        });
     }
 
     @Override

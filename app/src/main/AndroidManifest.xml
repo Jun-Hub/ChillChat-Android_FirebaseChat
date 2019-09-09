@@ -28,21 +28,24 @@
 
         <activity
             android:name=".view.ImageActivity"
+            android:alwaysRetainTaskState="true"
             android:screenOrientation="portrait"> </activity>
         <activity
             android:name=".view.ChatActivity"
+            android:alwaysRetainTaskState="true"
             android:screenOrientation="portrait"> </activity>
         <activity
             android:name=".view.MainActivity"
+            android:alwaysRetainTaskState="true"
             android:label="@string/app_name"
             android:screenOrientation="portrait"> </activity>
         <activity
             android:name=".view.AuthActivity"
+            android:alwaysRetainTaskState="true"
             android:launchMode="singleTop"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter android:autoVerify="true"

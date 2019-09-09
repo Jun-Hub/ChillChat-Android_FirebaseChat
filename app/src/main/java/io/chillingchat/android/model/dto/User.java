@@ -1,5 +1,8 @@
 package io.chillingchat.android.model.dto;
 
+import androidx.annotation.Keep;
+
+@Keep
 public class User {
 
     private String uid;

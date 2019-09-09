@@ -5,10 +5,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.Fragment;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,9 +20,16 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.Fragment;
+
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -143,10 +146,18 @@ public class SetFragment extends Fragment implements SetMVP.View {
     }
 
     private void initAd(View v) {
-        MobileAds.initialize(getActivity(), Integer.toString(R.string.admob_app_id));
+        MobileAds.initialize(getActivity(), new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+            }
+        });
 
         AdView mAdView = v.findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder().build();
+        AdRequest adRequest = new AdRequest.Builder()
+                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+                .addTestDevice("9425B3D2A5C734031F36632A80F10B1F")
+                .addTestDevice("B518ED7493EE60C3ED642113D7A099BC")
+                .build();
         mAdView.loadAd(adRequest);
     }
 
@@ -350,7 +361,7 @@ public class SetFragment extends Fragment implements SetMVP.View {
             intent.putExtra("leave", true);
         }
         startActivity(intent);
-        assert getActivity() != null;
+        if(getActivity() != null)
         getActivity().finish();
     }
 }

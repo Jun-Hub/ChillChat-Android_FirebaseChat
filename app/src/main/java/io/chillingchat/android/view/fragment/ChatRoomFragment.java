@@ -2,12 +2,6 @@ package io.chillingchat.android.view.fragment;
 
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,9 +10,18 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.Keep;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 
 import java.util.ArrayList;
 
@@ -56,7 +59,7 @@ public class ChatRoomFragment extends Fragment implements ChatRoomMVP.View {
 
         setupMVP();
 
-        if(chatRoomPresenter.checkOnlineStatus(getContext())) {
+        if(getContext() != null && chatRoomPresenter.checkOnlineStatus(getContext())) {
              v = inflater.inflate(R.layout.fragment_chatroom, container, false);
             setupView(v);
             initAd(v);
@@ -89,11 +92,20 @@ public class ChatRoomFragment extends Fragment implements ChatRoomMVP.View {
         chatRoomAdapter = new ChatRoomAdapter(getContext(), chatRoomList);
     }
 
+    @Keep
     private void initAd(View v) {
-        MobileAds.initialize(getActivity(), Integer.toString(R.string.admob_app_id));
+        MobileAds.initialize(getActivity(), new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+            }
+        });
 
         AdView mAdView = v.findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder().build();
+        AdRequest adRequest = new AdRequest.Builder()
+                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+                .addTestDevice("9425B3D2A5C734031F36632A80F10B1F")
+                .addTestDevice("B518ED7493EE60C3ED642113D7A099BC")
+                .build();
         mAdView.loadAd(adRequest);
     }
 
@@ -129,8 +141,6 @@ public class ChatRoomFragment extends Fragment implements ChatRoomMVP.View {
     @Override
     public void onPause() {
         super.onPause();
-
-        Log.e(TAG, "onPause called");
 
         aIsThreadRunning = false;
         chatRoomPresenter.removeListener();

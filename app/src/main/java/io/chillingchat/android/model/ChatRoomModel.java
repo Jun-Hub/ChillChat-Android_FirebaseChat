@@ -13,8 +13,6 @@ import com.google.firebase.database.ValueEventListener;
 import io.chillingchat.android.model.dto.ChatRoom;
 import io.chillingchat.android.mvp_interface.ChatRoomMVP;
 
-//TODO 네트워크 연결상태를 고려하여, success면 보여주고 fail이면 '네트워크 ㅄ이므로 다시 시도' 문구 보여주기. / 여기뿐아니라 대부분 데이터로드에 적용될듯.
-
 public class ChatRoomModel implements ChatRoomMVP.Model {
 
     private ChatRoomMVP.Presenter chatRoomPresenter;

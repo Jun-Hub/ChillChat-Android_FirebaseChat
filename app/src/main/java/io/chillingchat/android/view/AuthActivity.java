@@ -33,7 +33,7 @@ public class AuthActivity extends AppCompatActivity implements AuthMVP.View {
 
     Button sendBtn;
     EditText emailEditText;
-    TextView noticeText, noticeText2, makeMail;
+    TextView noticeText, makeMail, idNoticeText;
     ImageView logo;
 
     public static boolean adminMode = false;
@@ -50,6 +50,15 @@ public class AuthActivity extends AppCompatActivity implements AuthMVP.View {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_auth);
+
+        if (!isTaskRoot()) {
+            Intent intent = getIntent();
+            String action = intent.getAction();
+            if (intent.hasCategory(Intent.CATEGORY_LAUNCHER) && action != null && action.equals(Intent.ACTION_MAIN)) {
+                finish();
+                return;
+            }
+        }
 
         setupMVP();
 
@@ -79,8 +88,8 @@ public class AuthActivity extends AppCompatActivity implements AuthMVP.View {
         sendBtn = findViewById(R.id.send_mail_btn);
 
         noticeText = findViewById(R.id.notice_text);
-        noticeText2 = findViewById(R.id.notice_text2);
         makeMail = findViewById(R.id.make_mail);
+        idNoticeText = findViewById(R.id.id_notice_text);
         logo = findViewById(R.id.logo);
 
         progressBar = findViewById(R.id.progressbar);
@@ -125,6 +134,13 @@ public class AuthActivity extends AppCompatActivity implements AuthMVP.View {
                 } else {
                     showSnackBar("네트워크 연결 상태가 좋지 않습니다. 확인 후 다시 시도해주세요.", 3000, true, true);
                 }
+            }
+        });
+
+        idNoticeText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showIdNoticeDialog();
             }
         });
 
@@ -184,7 +200,6 @@ public class AuthActivity extends AppCompatActivity implements AuthMVP.View {
             );
             // Layout must match parent layout type
             lp.setMargins(0, 300, 0, 0);
-            lp.height = 48;
             // Margins relative to the parent view.
             snackBarLayout.setLayoutParams(lp);
         }
@@ -216,7 +231,7 @@ public class AuthActivity extends AppCompatActivity implements AuthMVP.View {
 
     @Override
     public void startMainActivity() {
-        startActivity(new Intent(this, SplashActivity.class));
+        startActivity(new Intent(AuthActivity.this, SplashActivity.class));
         finish();
     }
 
@@ -256,6 +271,19 @@ public class AuthActivity extends AppCompatActivity implements AuthMVP.View {
                     }
                 });
         builder.setCancelable(false);
+        builder.show();
+    }
+
+    private void showIdNoticeDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("*회원 개인 정보에 대한 안내");
+        builder.setMessage(" 본 어플에서 수집하는 개인 정보는 오직 경희대학교 웹메일뿐입니다.\n\n 경희대 웹메일에서 다른 메일로 '보내야만' 받은 사람 메일에서 학부와 이름이 공개됩니다. 본 어플의 인증 과정은 메일을 '받기'만 하는 것이라 신상정보가 노출되지 않습니다." +
+                            "\n\n 관리자가 회원들의 웹메일을 알고 있다고 해서, 임의의 메일에서 경희대 웹메일로 보내는 것으로는 신상을 알 수가 없습니다. 학우분이 직접 본인의 경희대 웹메일을 이용하여 다른 메일로 보내야만 학부와 이름이 공개됩니다.");
+        builder.setPositiveButton("확인",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                });
         builder.show();
     }
 

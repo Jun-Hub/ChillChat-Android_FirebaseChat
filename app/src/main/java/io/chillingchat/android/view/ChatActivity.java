@@ -1,10 +1,5 @@
 package io.chillingchat.android.view;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -16,6 +11,11 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.gun0912.tedpermission.PermissionListener;
@@ -34,7 +34,6 @@ import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static io.chillingchat.android.presenter.ChatPresenter.isThreadActive;
 import static io.chillingchat.android.presenter.ChatPresenter.timeCheckThread;
 
-//TODO 인터넷이 끊긴 상태거나, 와이파이에서 LTE로 바뀌는 상황, 네트워크 연결이 불안전한 상태일 때 채팅 오가는 거 고려하기.(addonSuccessListener 사용하기!) 그리고 addonFailureListener도 적극 이용
 public class ChatActivity extends AppCompatActivity implements ChatMVP.View {
 
     ChatPresenter chatPresenter;

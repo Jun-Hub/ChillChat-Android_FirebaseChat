@@ -1,8 +1,11 @@
 package io.chillingchat.android.model.dto;
 
+import androidx.annotation.Keep;
+
 import java.util.HashMap;
 import java.util.Map;
 
+@Keep
 public class ChatRoom {
 
     //public Map<String, Object> info = new HashMap<>();
@@ -34,7 +37,7 @@ public class ChatRoom {
         this.chats = chats;
     }
 
-
+    @Keep
     public static class Info {
         private Object madeTime;
         private String user1Uid;
@@ -95,7 +98,7 @@ public class ChatRoom {
         }
     }
 
-
+    @Keep
     public static class Chat {
 
         public String sender;

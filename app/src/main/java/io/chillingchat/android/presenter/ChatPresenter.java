@@ -89,9 +89,8 @@ public class ChatPresenter implements ChatMVP.Presenter {
 
     @Override
     public void checkMessage(String msg) {
-        if (msg.trim().length() > 0) {   //if ChatEditText is not empty
-            FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-            assert firebaseUser != null;
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (firebaseUser != null && msg.trim().length() > 0) {   //if ChatEditText is not empty
             chatModel.sendMessage(firebaseUser.getUid(), msg);
         }
     }
@@ -155,11 +154,10 @@ public class ChatPresenter implements ChatMVP.Presenter {
 
         String scheme = imageUri.getScheme();
 
-        assert scheme != null;
-        if (scheme.equals(ContentResolver.SCHEME_CONTENT)) {
+        if (scheme != null && scheme.equals(ContentResolver.SCHEME_CONTENT)) {
             try {
                 InputStream fileInputStream = activity.getContentResolver().openInputStream(imageUri);
-                assert fileInputStream != null;
+                if(fileInputStream != null)
                 dataSize = fileInputStream.available();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -199,7 +197,7 @@ public class ChatPresenter implements ChatMVP.Presenter {
         return resizedBitmap;
     }*/
 
-    private Uri bitmapToUri(Context context, Bitmap bitmap) {
+    /*private Uri bitmapToUri(Context context, Bitmap bitmap) {
 
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
@@ -214,13 +212,16 @@ public class ChatPresenter implements ChatMVP.Presenter {
 
     private String uriToFilePath(Context context, Uri uri) {
         Cursor cursor = context.getContentResolver().query(uri, null, null, null, null );
-        assert cursor != null;
-        cursor.moveToNext();
-        String filePath = cursor.getString(cursor.getColumnIndex( "_data" ));
-        cursor.close();
+        if(cursor != null) {
+            cursor.moveToNext();
+            String filePath = cursor.getString(cursor.getColumnIndex("_data"));
+            cursor.close();
 
-        return filePath;
-    }
+            return filePath;
+        } else {
+            return null;
+        }
+    }*/
 
     @Override
     public void deleteChatRoom() {

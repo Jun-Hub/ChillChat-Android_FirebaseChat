@@ -63,30 +63,34 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="60dp"
         android:text="인증 메일 확인은 PC가 아닌 해당 모바일에서 해야합니다"
-        android:textColor="@color/colorPrimary"
+        android:textColor="@color/colorAccent"
         android:textSize="16sp" />
 
     <TextView
-        android:id="@+id/notice_text2"
+        android:id="@+id/make_mail"
         android:layout_below="@+id/notice_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:layout_centerHorizontal="true"
-        android:text="경희대학교 웹메일 주소는 '학번@khu.ac.kr'입니다"
-        android:textSize="15sp" />
-
-    <TextView
-        android:id="@+id/make_mail"
-        android:layout_below="@+id/notice_text2"
-        android:layout_width="wrap_content"
-        android:layout_height="48dp"
+        android:layout_marginTop="10dp"
         android:padding="10dp"
         android:background="@drawable/background_text"
         android:layout_centerHorizontal="true"
         android:text="웹메일 신규아이디 신청하러 가기"
-        android:textColor="#000000"
-        android:textSize="15sp" />
+        android:textColor="@color/colorPrimary"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/id_notice_text"
+        android:layout_below="@+id/make_mail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:padding="10dp"
+        android:background="@drawable/background_text"
+        android:layout_centerHorizontal="true"
+        android:text="@string/your_string_here"
+        android:textColor="@color/colorPrimaryDark"
+        android:textSize="16sp" />
 
 
 </RelativeLayout>
