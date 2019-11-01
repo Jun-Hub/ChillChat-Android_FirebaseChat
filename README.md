@@ -10,6 +10,12 @@ Screenshots
 <br>
 <br>
 
+Playstore Link
+----------------
+https://play.google.com/store/apps/details?id=io.chillingchat.android
+<br>
+<br>
+
 App Info
 -----------------------------   
 *각 대학교 웹메일 인증으로 가입하여 대학생끼리만 즐길 수 있는 랜덤채팅 어플*
