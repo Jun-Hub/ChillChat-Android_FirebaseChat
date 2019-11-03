@@ -1,5 +1,6 @@
 # ChillChat
-칠챗(ChillChat)대학생 랜덤채팅 Random Chat for University Students
+칠챗(ChillChat)대학생 랜덤채팅 Random Chat for University Students <br>
+Server by Firebase RealTimeDatabase <br>
 
 Screenshots
 ------------------------------
