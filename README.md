@@ -1,5 +1,5 @@
 # ChillChat
-칠챗(ChillChat) - 대학생 랜덤채팅<br>
+칠챗(ChillChat) - 대학생 랜덤채팅,<br>
 👉🏻👉🏻[Playstore Link](https://play.google.com/store/apps/details?id=io.chillingchat.android)
 * Firebase Authentication
 * Firebase Realtime Database
